@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"lib": ["es2023"],
+		"moduleDetection": "force",
+		"module": "preserve",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"types": [],
+		"strict": true,
+		"noUnusedLocals": true,
+		"declaration": true,
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"skipLibCheck": true,
+		"isolatedDeclarations": false,
+		"baseUrl": ".",
+		"paths": {
+			"@cli/*": ["src/cli/*"],
+			"@lib/*": ["src/lib/*"],
+			"@shared/*": ["src/shared/*"],
+			"@pkg": ["package.json"],
+		},
+	},
+	"include": ["src", "tests"],
+}

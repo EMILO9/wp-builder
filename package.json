@@ -1,0 +1,54 @@
+{
+	"name": "wp-builder",
+	"version": "1.0.0",
+	"description": "A lightweight CLI and build tool for WordPress development workflows",
+	"main": "./dist/lib/lib-m.cjs",
+	"module": "./dist/lib/lib-m.mjs",
+	"types": "./dist/lib/lib-m.d.cts",
+	"scripts": {
+		"build": "tsdown",
+		"attw": "attw --pack ."
+	},
+	"exports": {
+		".": {
+			"import": {
+				"default": "./dist/lib/lib-m.mjs",
+				"types": "./dist/lib/lib-m.d.mts"
+			},
+			"require": {
+				"default": "./dist/lib/lib-m.cjs",
+				"types": "./dist/lib/lib-m.d.cts"
+			}
+		}
+	},
+	"keywords": [
+		"wordpress",
+		"cli",
+		"builder",
+		"tooling",
+		"build-tool",
+		"developer-tools",
+		"node-cli",
+		"automation"
+	],
+	"files": [
+		"dist"
+	],
+	"author": "EMILO9",
+	"license": "MIT",
+	"type": "module",
+	"devDependencies": {
+		"@arethetypeswrong/cli": "^0.18.2",
+		"tsdown": "^0.21.8",
+		"typescript": "^6.0.2"
+	},
+	"dependencies": {
+		"change-case": "^5.4.4",
+		"commander": "^14.0.3",
+		"cosmiconfig": "^9.0.1",
+		"cosmiconfig-typescript-loader": "^6.3.0",
+		"parse-packagejson-name": "^1.1.0",
+		"vite": "^8.0.8",
+		"zod": "^4.3.6"
+	}
+}
