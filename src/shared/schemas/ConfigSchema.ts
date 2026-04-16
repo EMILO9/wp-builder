@@ -3,8 +3,13 @@ import { HeaderSchema } from "@shared/schemas/HeaderSchema";
 import { BuildSchema } from "@shared/schemas/BuildSchema";
 
 export const ConfigSchema = z.object({
-	headers: HeaderSchema,
-	build: BuildSchema.default(BuildSchema.parse({})),
+  dest: z.string().trim().nonempty().default(".plugin"),
+  entry: z.string().trim().nonempty().default("plugin.php"),
+  headers: HeaderSchema,
+  build: BuildSchema,
+  data: z
+    .function({ input: [], output: z.record(z.string(), z.any()) })
+    .optional(),
 });
 
 export type ConfigInput = z.input<typeof ConfigSchema>;
