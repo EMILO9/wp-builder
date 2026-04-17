@@ -1,1 +1,3 @@
-export default { header: { pluginName: "My Plugin!" } };
+import { defineConfig } from "wp-builder";
+
+export default defineConfig({ headers: { pluginName: "My Plugin!" } });

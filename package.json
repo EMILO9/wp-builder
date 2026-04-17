@@ -8,9 +8,8 @@
   "scripts": {
     "build": "tsdown",
     "attw": "attw --pack .",
-    "pretest": "npm run attw && npm run build",
-    "test": "vitest run",
-    "test:watch": "npm run pretest && vitest --ui"
+    "pretest": "npm run build",
+    "test": "vitest run"
   },
   "bin": {
     "wp-builder": "./dist/cli/cli-m.mjs"
@@ -47,7 +46,6 @@
     "@arethetypeswrong/cli": "^0.18.2",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^25.6.0",
-    "@vitest/ui": "^4.1.4",
     "execa": "^9.6.1",
     "tsdown": "^0.21.8",
     "typescript": "^6.0.2",

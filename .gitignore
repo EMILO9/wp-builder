@@ -1,2 +1,9 @@
+# build output
 /dist
-/node_modules
+
+# dependencies
+node_modules/
+
+# fixture output
+tests/fixtures/**/.plugin/
+tests/fixtures/**/node_modules/
