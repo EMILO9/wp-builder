@@ -4,7 +4,7 @@ import { BuildSchema } from "@shared/schemas/BuildSchema";
 
 export const ConfigSchema = z.object({
   entry: z.string().trim().nonempty().default("plugin.php"),
-  headers: HeaderSchema,
+  header: HeaderSchema,
   build: BuildSchema,
   data: z
     .function({ input: [], output: z.record(z.string(), z.any()) })

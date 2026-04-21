@@ -11,7 +11,6 @@ import path from "node:path";
 import * as changeCase from "change-case";
 import { consola } from "consola";
 import { fromError, isZodErrorLike } from "zod-validation-error";
-
 const moduleName = parsePackageJsonName(pkg.name).fullName;
 const explorer = cosmiconfig(moduleName, {
   loaders: {
@@ -29,18 +28,37 @@ program
   .action(async () => {
     try {
       const result = await explorer.search();
-      const { entry, headers, build, data } = ConfigSchema.parse(result?.config);
-      const slug = changeCase.kebabCase(headers.pluginName);
+      const { entry, header, build, data } = ConfigSchema.parse(result?.config);
+      const slug = changeCase.kebabCase(header.pluginName);
       const buildRoot = path.join(process.cwd(), ".plugin");
       const stagingPath = path.join(buildRoot, slug);
       await fs.remove(buildRoot);
       const entryPath = path.join(process.cwd(), entry);
       const rawPHPSource = await fs.readFile(entryPath, "utf-8");
       const template = hbs.compile(rawPHPSource, { noEscape: true });
-      const context = data?.call({ headers }) ?? {};
+      const context = data?.call({ header }) ?? {};
       const renderedPHP = template(context);
       const outputPath = path.join(stagingPath, `${slug}.php`);
       await fs.outputFile(outputPath, renderedPHP);
+      if (build) {
+        await ViteBuild({
+          build: {
+            outDir: stagingPath,
+            emptyOutDir: false,
+            lib: {
+              entry: path.resolve(process.cwd(), build.entry),
+              name: changeCase.pascalCase(header.pluginName),
+              formats: ["iife"],
+              fileName: (format) => `${slug}.js`,
+            },
+            rolldownOptions: {
+              output: {
+                assetFileNames: `${slug}.[ext]`,
+              },
+            },
+          },
+        });
+      }
     } catch (error) {
       if (isZodErrorLike(error)) {
         consola.error(fromError(error).toString());

@@ -23,7 +23,8 @@
         "default": "./dist/lib/lib-m.cjs",
         "types": "./dist/lib/lib-m.d.cts"
       }
-    }
+    },
+    "./client": "./src/client.d.ts"
   },
   "keywords": [
     "wordpress",
@@ -36,7 +37,8 @@
     "automation"
   ],
   "files": [
-    "dist"
+    "dist",
+    "src/client.d.ts"
   ],
   "author": "EMILO9",
   "license": "MIT",

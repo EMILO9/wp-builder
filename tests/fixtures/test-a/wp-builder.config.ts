@@ -1,8 +1,11 @@
 import { defineConfig } from "wp-builder";
 
 export default defineConfig({
-  headers: { pluginName: "My Plugin!" },
+  header: { pluginName: "My Plugin!" },
   data() {
-    return 1
+    return {
+      name: this.header.pluginName,
+    };
   },
+  build: {},
 });
