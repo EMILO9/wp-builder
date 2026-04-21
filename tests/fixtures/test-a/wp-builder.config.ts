@@ -5,7 +5,8 @@ export default defineConfig({
   data() {
     return {
       name: this.header.pluginName,
+      arr: [1, 2, 3],
     };
   },
-  build: {},
+  build: { external: { jquery: "jQuery" }, minify: "oxc" },
 });

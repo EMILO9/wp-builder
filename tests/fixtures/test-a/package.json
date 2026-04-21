@@ -1,6 +1,10 @@
 {
   "name": "test-a",
   "dependencies": {
+    "jquery": "^4.0.0",
     "wp-builder": "file:../../.."
+  },
+  "devDependencies": {
+    "@types/jquery": "^4.0.0"
   }
 }

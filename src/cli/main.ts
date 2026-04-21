@@ -42,9 +42,21 @@ program
       await fs.outputFile(outputPath, renderedPHP);
       if (build) {
         await ViteBuild({
+          resolve: {
+            alias: build.alias,
+          },
+          define: Object.fromEntries(
+            Object.entries(context).map(([key, val]) => {
+              const formattedKey = `__${changeCase.constantCase(key)}__`;
+              return [formattedKey, JSON.stringify(val)];
+            }),
+          ),
           build: {
+            target: build.target,
             outDir: stagingPath,
             emptyOutDir: false,
+            minify: build.minify,
+            sourcemap: build.sourcemap,
             lib: {
               entry: path.resolve(process.cwd(), build.entry),
               name: changeCase.pascalCase(header.pluginName),
@@ -52,8 +64,10 @@ program
               fileName: (format) => `${slug}.js`,
             },
             rolldownOptions: {
+              external: Object.keys(build.external),
               output: {
                 assetFileNames: `${slug}.[ext]`,
+                globals: build.external,
               },
             },
           },
