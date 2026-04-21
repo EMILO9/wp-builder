@@ -268,6 +268,12 @@ declare module "*?url&no-inline" {
 	export default src;
 }
 
+declare module "*.vue" {
+	import { DefineComponent } from "vue";
+	const component: DefineComponent<{}, {}, any>;
+	export default component;
+}
+
 declare const __WP_DATA__: {
 	[key: string]: any;
 };
