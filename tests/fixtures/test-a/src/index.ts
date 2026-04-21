@@ -1,15 +1,15 @@
 import "@/style.css";
 import $ from "jquery";
-import myImage from "@/assets/122.webp?url";
+import myImage from "@/assets/122.webp?no-inline";
 
 $(() => {
-  const $root = $("#root");
-  if (!$root.length) {
-    console.warn("Test-A: #root element not found.");
-    return;
-  }
+	const $root = $("#root");
+	if (!$root.length) {
+		console.warn("Test-A: #root element not found.");
+		return;
+	}
 
-  $root.html(`
+	$root.html(`
     <div class="test-a-container">
       <img src="${myImage}" alt="Test Asset" style="max-width: 100%; height: auto;" />
 
@@ -22,8 +22,8 @@ $(() => {
     </div>
   `);
 
-  $("#test-a-trigger").on("click", (e) => {
-    $(e.currentTarget).text("Working! ✅");
-    console.log("Test-A: jQuery event listener fired successfully.");
-  });
+	$("#test-a-trigger").on("click", (e) => {
+		$(e.currentTarget).text("Working! ✅");
+		console.log("Test-A: jQuery event listener fired successfully.");
+	});
 });
