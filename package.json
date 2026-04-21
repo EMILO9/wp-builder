@@ -1,5 +1,5 @@
 {
-	"name": "wp-builder",
+	"name": "@emilo9/wp-builder",
 	"version": "1.0.0",
 	"description": "A lightweight CLI and build tool for WordPress development workflows",
 	"main": "./dist/lib/lib-m.cjs",
