@@ -1,7 +1,7 @@
 import "@/style.css";
 import $ from "jquery";
 import myImage from "@/assets/122.webp?no-inline";
-
+__WP_DATA__
 $(() => {
 	const $root = $("#root");
 	if (!$root.length) {

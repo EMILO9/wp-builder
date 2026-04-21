@@ -1,5 +1,5 @@
 {
-	"name": "@emilo9/wp-builder",
+	"name": "@emilo/wp-builder",
 	"version": "1.0.0",
 	"description": "A lightweight CLI and build tool for WordPress development workflows",
 	"main": "./dist/lib/lib-m.cjs",
@@ -8,10 +8,11 @@
 	"scripts": {
 		"build": "tsdown",
 		"attw": "attw --pack .",
-		"test": "vitest run"
+		"test": "vitest run",
+		"prepublishOnly": "npm run build"
 	},
 	"bin": {
-		"wp-builder": "./dist/cli/cli-m.mjs"
+		"wp-builder": "dist/cli/cli-m.mjs"
 	},
 	"exports": {
 		".": {
