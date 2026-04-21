@@ -12,6 +12,6 @@ export default defineConfig([
 		entry: { "lib-m": "src/lib/main.ts" },
 		format: ["esm", "cjs"],
 		outDir: "dist/lib",
-		dts: true,
+		dts: true
 	},
 ]);

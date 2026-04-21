@@ -23,8 +23,6 @@ $(() => {
   `);
 
   $("#test-a-trigger").on("click", (e) => {
-    console.log(__NAME__);
-    console.log(__ARR__);
     $(e.currentTarget).text("Working! ✅");
     console.log("Test-A: jQuery event listener fired successfully.");
   });
