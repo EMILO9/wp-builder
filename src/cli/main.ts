@@ -29,14 +29,15 @@ program
   .action(async () => {
     try {
       const result = await explorer.search();
-      const { dest, entry, headers, build, data } = ConfigSchema.parse(result?.config);
+      const { entry, headers, build, data } = ConfigSchema.parse(result?.config);
       const slug = changeCase.kebabCase(headers.pluginName);
-      const stagingPath = path.join(process.cwd(), dest, slug);
-      await fs.remove(stagingPath);
+      const buildRoot = path.join(process.cwd(), ".plugin");
+      const stagingPath = path.join(buildRoot, slug);
+      await fs.remove(buildRoot);
       const entryPath = path.join(process.cwd(), entry);
       const rawPHPSource = await fs.readFile(entryPath, "utf-8");
       const template = hbs.compile(rawPHPSource, { noEscape: true });
-      const context = data?.call({ dest, entry, headers, build }) ?? {};
+      const context = data?.call({ headers }) ?? {};
       const renderedPHP = template(context);
       const outputPath = path.join(stagingPath, `${slug}.php`);
       await fs.outputFile(outputPath, renderedPHP);

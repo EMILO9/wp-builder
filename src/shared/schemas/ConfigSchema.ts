@@ -3,7 +3,6 @@ import { HeaderSchema } from "@shared/schemas/HeaderSchema";
 import { BuildSchema } from "@shared/schemas/BuildSchema";
 
 export const ConfigSchema = z.object({
-  dest: z.string().trim().nonempty().default(".plugin"),
   entry: z.string().trim().nonempty().default("plugin.php"),
   headers: HeaderSchema,
   build: BuildSchema,

@@ -15,14 +15,9 @@ describe("CLI Build Integration", () => {
   for (const fixture of fixtures) {
     const fixtureDir = path.join(FIXTURES_DIR, fixture);
     it(`builds project for ${fixture}`, async () => {
-      await execa("npm", ["install"], {
-        cwd: fixtureDir,
-        stdio: "inherit",
-      });
+      await execa("npm", ["install"], { cwd: fixtureDir });
       const result = await execa("npx", ["wp-builder", "build"], {
         cwd: fixtureDir,
-        reject: false,
-        stdio: "inherit",
       });
       expect(result.exitCode).toBe(0);
     });
