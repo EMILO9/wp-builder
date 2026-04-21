@@ -73,7 +73,7 @@ program
 										return `${slug}.css`;
 									}
 
-									return `assets/[name]-[hash][extname]`;
+									return `assets/[name][extname]`;
 								},
 								globals: build.external,
 							},
