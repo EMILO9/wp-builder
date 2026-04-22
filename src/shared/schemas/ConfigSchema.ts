@@ -1,14 +1,14 @@
 import { z } from "zod";
 import { HeaderSchema } from "@shared/schemas/HeaderSchema";
 import { BuildSchema } from "@shared/schemas/BuildSchema";
+import { PHPSchema } from "@shared/schemas/PHPSchema";
+import { DataSchema } from "@shared/schemas/DataSchema";
 
 export const ConfigSchema = z.object({
-  entry: z.string().trim().nonempty().default("plugin.php"),
+  php: PHPSchema.default(PHPSchema.parse({})),
   header: HeaderSchema,
-  build: BuildSchema,
-  data: z
-    .function({ input: [], output: z.record(z.string(), z.any()) })
-    .optional(),
+  build: BuildSchema.optional(),
+  data: DataSchema.optional(),
 });
 
 export type ConfigInput = z.input<typeof ConfigSchema>;
