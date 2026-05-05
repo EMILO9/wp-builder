@@ -30,35 +30,94 @@ npm install @emilo/wp-builder --save-dev
 import { defineConfig } from "@emilo/wp-builder";
 import react from "@vitejs/plugin-react";
 
-export default defineConfig({
+defineConfig({
+  /**
+   * --- PROJECT METADATA ---
+   * These values are passed into the Handlebars context via the data()
+   * method below. You must manually place them in your PHP files
+   * using tags like {{pluginName}} or {{version}}.
+   */
   header: {
+    // Used in PHP: Plugin Name: {{pluginName}}
     pluginName: "My Plugin!",
+    // Used in PHP: Version: {{version}}
     version: "1.0.0",
+    // Used in PHP: Author: {{author}}
     author: ["Anonymous"],
+    // Used in PHP: Author URI: {{authorURI}}
+    authorURI: "https://my-site.com",
+    // Used in PHP: Description: {{description}}
     description: "My Awesome Plugin!",
-    textDomain: "my-plugin",
+    // Used in PHP: Domain Path: {{domainPath}}
+    domainPath: "/languages",
+    // Used in PHP: License: {{license}}
+    license: "GPLv2 or later",
+    // Used in PHP: License URI: {{licenseURI}}
+    licenseURI: "https://www.gnu.org/licenses/gpl-3.0.html",
+    // Used in PHP: Network: {{#if network}}true{{/if}}
+    network: true,
+    // Used in PHP: Plugin URI: {{pluginURI}}
+    pluginURI: "https://my-site.com",
+    // Used in PHP: Requires at least: {{requiresAtLeast}}
     requiresAtLeast: "6.9.0",
+    // Used in PHP: Requires PHP: {{requiresPHP}}
     requiresPHP: "7.4",
+    // Used in PHP: Requires Plugins: {{requiresPlugins}}
+    requiresPlugins: ["woocommerce"],
+    // Used in PHP: Text Domain: {{textDomain}}
+    textDomain: "my-plugin",
+    // Used in PHP: Update URI: {{updateURI}}
+    updateURI: "https://my-site.com",
   },
+
+  /**
+   * --- PHP ORCHESTRATION ---
+   * Defines which files get the Handlebars treatment and where they go.
+   */
   php: {
-    entry: "php/plugin.php", // Main file with HBS template support
-    sources: ["php/includes/**/*.php"], // Automatically mapped to staging
-    partials: ["src/partials/**/*.hbs"], // Reusable template components
+    // The main file where you manually write your {{pluginName}} headers
+    entry: "php/plugin.php",
+    // Includes and translation files moved to the staging directory
+    sources: ["php/includes/**/*.php", "languages/"],
+    // Custom logic available for your templates (e.g., {{uppercase textDomain}})
     helpers: {
-      uppercase: (v: string) => v.toUpperCase(), // Custom logic for PHP templates
+      uppercase: (v: string) => v.toUpperCase(),
     },
+    // Reusable UI/logic snippets for your PHP files
+    partials: ["src/partials/**/*.hbs"],
   },
+
+  /**
+   * --- ASSET PIPELINE ---
+   * Standard Vite configuration for modern JS/TS and CSS.
+   */
   build: {
-    entry: "src/main.ts",
+    // Path aliasing for cleaner imports
     alias: { "@": "./src/components" },
-    external: { jquery: "jQuery" }, // Keep bundles small by using WP globals
-    plugins: [react()], // Full Vite plugin ecosystem support
-    minify: "oxc", // High-performance Rust-based minifier
-    zip: true, // Auto-generate distribution ZIP
+    // Frontend entry point
+    entry: "src/main.ts",
+    // Prevents bundling of WP core libraries
+    external: { jquery: "jQuery" },
+    // High-performance minification
+    minify: "oxc",
+    // Vite plugin support (e.g., React)
+    plugins: [react()],
+    // Disable sourcemaps for production
+    sourcemap: false,
+    // Browser compatibility range
+    target: "baseline-widely-available",
+    // Package the result for distribution
+    zip: true,
   },
+
+  /**
+   * --- DATA BRIDGE ---
+   * This is the CRITICAL part. It takes the header object and
+   * makes it available to your Handlebars tags in PHP.
+   */
   data() {
     return {
-      ...this.header, // Expose header data to Handlebars context
+      ...this.header,
     };
   },
 });
