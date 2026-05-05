@@ -12,6 +12,10 @@ import * as changeCase from "change-case";
 import { consola } from "consola";
 import ora from "ora";
 import { fromError, isZodErrorLike } from "zod-validation-error";
+import fg from "fast-glob";
+import globParent from "glob-parent";
+import AdmZip from "adm-zip";
+
 const moduleName = parsePackageJsonName(pkg.name).fullName;
 const explorer = cosmiconfig(moduleName, {
   loaders: {
@@ -40,6 +44,21 @@ program
       // --- 2. CLEANUP ---
       spinner.text = "Cleaning build directory...";
       await fs.remove(buildRoot);
+      // --- HANDLEBAR HELPERS/PARTIALS ---
+      Object.entries(php.helpers).forEach(([name, fn]) => {
+        hbs.registerHelper(name, fn);
+      });
+      if (php.partials.length) {
+        spinner.text = "Registering Handlebars partials...";
+        for (const pattern of php.partials) {
+          const partialFiles = await fg(pattern, { onlyFiles: true });
+          for (const file of partialFiles) {
+            const name = path.basename(file, path.extname(file));
+            const content = await fs.readFile(file, "utf-8");
+            hbs.registerPartial(name, content);
+          }
+        }
+      }
       // --- 3. PHP TEMPLATING (Main Entry) ---
       spinner.text = "Rendering PHP entry file...";
       const entryPath = path.join(process.cwd(), php.entry);
@@ -50,20 +69,21 @@ program
       const outputPath = path.join(stagingPath, `${slug}.php`);
       await fs.outputFile(outputPath, renderedPHP);
       // --- 4. PHP TEMPLATING (Includes) ---
-      if (php.includes) {
-        spinner.text = "Processing PHP includes...";
-        const includesPath = path.join(process.cwd(), php.includes);
-        const files = await fs.readdir(includesPath, { withFileTypes: true });
-        for (const file of files) {
-          if (!file.isFile()) continue;
-          const fullSrcPath = path.join(includesPath, file.name);
-          const source = await fs.readFile(fullSrcPath, "utf-8");
-          const rendered = hbs.compile(source, { noEscape: true })(context);
-          const nameWithoutExt = path.parse(file.name).name;
-          await fs.outputFile(
-            path.join(stagingPath, "includes", `${nameWithoutExt}.php`),
-            rendered,
-          );
+      if (php.sources.length) {
+        spinner.text = "Processing PHP sources...";
+        for (const pattern of php.sources) {
+          const parentDir = globParent(pattern);
+          const targetFolderName = path.basename(parentDir);
+          const targetPath = path.join(stagingPath, targetFolderName);
+          await fs.ensureDir(targetPath);
+          const files = await fg(pattern, { onlyFiles: true });
+          for (const file of files) {
+            const source = await fs.readFile(file, "utf-8");
+            const rendered = hbs.compile(source, { noEscape: true })(context);
+            const subPath = path.relative(parentDir, file);
+            const destination = path.join(targetPath, subPath);
+            await fs.outputFile(destination, rendered);
+          }
         }
       }
       // --- 5. ASSET BUNDLING (Vite) ---
@@ -107,6 +127,15 @@ program
             },
           },
         });
+        // --- 6. PACKAGING (Zip) ---
+        if (build.zip) {
+          spinner.text = "Zipping plugin...";
+          const zip = new AdmZip();
+          const zipFileName = `${slug}.zip`;
+          const zipOutputPath = path.join(buildRoot, zipFileName);
+          zip.addLocalFolder(stagingPath, slug);
+          zip.writeZip(zipOutputPath);
+        }
       }
       spinner.succeed(`Build finished successfully in .plugin/${slug}`);
     } catch (error) {

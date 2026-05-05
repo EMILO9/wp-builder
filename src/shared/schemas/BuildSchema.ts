@@ -74,6 +74,13 @@ export type BuildType = {
    * @see https://vitejs.dev/guide/using-plugins.html
    */
   plugins: any[];
+  /**
+   * Whether to bundle the final build into a distribution-ready ZIP file.
+   * The ZIP will be named after the plugin slug and placed in the `.plugin` directory.
+   * @default false
+   * @example true
+   */
+  zip: boolean;
 };
 
 export const BuildSchema: z.ZodType<BuildType, Partial<BuildType>> = z.object({
@@ -105,4 +112,5 @@ export const BuildSchema: z.ZodType<BuildType, Partial<BuildType>> = z.object({
     ])
     .default("baseline-widely-available"),
   plugins: z.array(z.any()).default([]),
+  zip: z.boolean().default(false),
 });

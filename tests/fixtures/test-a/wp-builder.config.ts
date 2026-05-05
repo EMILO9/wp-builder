@@ -2,7 +2,10 @@ import { defineConfig } from "wp-builder";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  php: { entry: "php/plugin.php", includes: "php/includes" },
+  php: {
+    entry: "php/plugin.php",
+    sources: ["php/includes/**/*.php", "php/languages/"],
+  },
   header: { pluginName: "My Plugin!" },
   data() {
     return {
@@ -14,5 +17,6 @@ export default defineConfig({
     minify: "oxc",
     target: "baseline-widely-available",
     plugins: [react()],
+    zip: false,
   },
 });

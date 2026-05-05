@@ -50,10 +50,3 @@ export interface UserConfig {
 export function defineConfig(config: UserConfig) {
   return config;
 }
-
-defineConfig({
-  header: { pluginName: "12" },
-  data() {
-    return {};
-  },
-});
