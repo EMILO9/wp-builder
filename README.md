@@ -1,130 +1,92 @@
-# 🏛️ wp-builder
+<h1
+	align="center"
+	style="font-family: &quot;Orbitron&quot;, monospace; font-size: 4em"
+>
+	WP-Builder
+</h1>
 
-**The Universal Build Orchestrator for Modern WordPress Development**
+<p align="center">
+	⚡ Build WordPress plugins from modern JavaScript projects ⚡
+</p>
 
-`wp-builder` is a high-performance CLI designed to bridge the gap between modern development workflows and classic WordPress architecture. It unifies PHP templating, Vite-powered asset bundling, and automated distribution into a single, type-safe pipeline.
+<p align="center">
+	<img
+		src="https://img.shields.io/npm/v/@emilo/wp-builder?color=blue&label=npm"
+		alt="npm version"
+	/>
+	<img
+		src="https://img.shields.io/npm/dm/@emilo/wp-builder?color=green&label=downloads"
+		alt="downloads"
+	/>
+	<img
+		src="https://img.shields.io/npm/l/@emilo/wp-builder?color=orange&label=license"
+		alt="license"
+	/>
+</p>
 
----
+<hr />
 
-## ✨ Key Features
+<h2>Overview</h2>
 
-- **⚡ Blazing Fast Bundling**: Leverages **Vite** and **Oxc** for near-instant compilation of TypeScript, React, and modern CSS.
-- **🧩 Logic-Driven PHP**: Power your PHP files with **Handlebars**. Inject metadata, use custom functional helpers, and register partials directly from your config.
-- **🛡️ Rock-Solid Type Safety**: Built on Zod, providing full IDE autocomplete and schema validation for every configuration option.
-- **📦 Distribution Automator**: Instant staging folder generation and `.zip` packaging, ensuring your plugin is ready for the "Upload Plugin" button immediately.
-- **🔌 WP-Native Intelligence**: Deep support for WordPress globals, externalizing core libraries (jQuery, React), and automated plugin header generation.
+<p>
+	<strong>WP-Builder</strong> is a build tool that compiles modern JavaScript projects into production-ready WordPress plugins.
+	It handles multi-entry builds, asset bundling, and plugin packaging through a streamlined CLI workflow.
+</p>
 
----
+<hr />
 
-## 🚀 Quick Start
+<h2>Install</h2>
 
-### 1. Installation
+<pre>
+npm install @emilo/wp-builder
+</pre>
 
-```bash
-npm install @emilo/wp-builder --save-dev
-```
+<hr />
 
-## Full Configuration Example
+<h2>CLI Usage</h2>
 
-```typescript
-import { defineConfig } from "@emilo/wp-builder";
-import react from "@vitejs/plugin-react";
+<pre>
+npx wp-builder build
+</pre>
 
-defineConfig({
-  /**
-   * --- PROJECT METADATA ---
-   * These values are passed into the Handlebars context via the data()
-   * method below. You must manually place them in your PHP files
-   * using tags like {{pluginName}} or {{version}}.
-   */
-  header: {
-    // Used in PHP: Plugin Name: {{pluginName}}
-    pluginName: "My Plugin!",
-    // Used in PHP: Version: {{version}}
-    version: "1.0.0",
-    // Used in PHP: Author: {{author}}
-    author: ["Anonymous"],
-    // Used in PHP: Author URI: {{authorURI}}
-    authorURI: "https://my-site.com",
-    // Used in PHP: Description: {{description}}
-    description: "My Awesome Plugin!",
-    // Used in PHP: Domain Path: {{domainPath}}
-    domainPath: "/languages",
-    // Used in PHP: License: {{license}}
-    license: "GPLv2 or later",
-    // Used in PHP: License URI: {{licenseURI}}
-    licenseURI: "https://www.gnu.org/licenses/gpl-3.0.html",
-    // Used in PHP: Network: {{#if network}}true{{/if}}
-    network: true,
-    // Used in PHP: Plugin URI: {{pluginURI}}
-    pluginURI: "https://my-site.com",
-    // Used in PHP: Requires at least: {{requiresAtLeast}}
-    requiresAtLeast: "6.9.0",
-    // Used in PHP: Requires PHP: {{requiresPHP}}
-    requiresPHP: "7.4",
-    // Used in PHP: Requires Plugins: {{requiresPlugins}}
-    requiresPlugins: ["woocommerce"],
-    // Used in PHP: Text Domain: {{textDomain}}
-    textDomain: "my-plugin",
-    // Used in PHP: Update URI: {{updateURI}}
-    updateURI: "https://my-site.com",
-  },
+<hr />
 
-  /**
-   * --- PHP ORCHESTRATION ---
-   * Defines which files get the Handlebars treatment and where they go.
-   */
-  php: {
-    // The main file where you manually write your {{pluginName}} headers
-    entry: "php/plugin.php",
-    // Includes and translation files moved to the staging directory
-    sources: ["php/includes/**/*.php", "languages/"],
-    // Custom logic available for your templates (e.g., {{uppercase textDomain}})
-    helpers: {
-      uppercase: (v: string) => v.toUpperCase(),
-    },
-    // Reusable UI/logic snippets for your PHP files
-    partials: ["src/partials/**/*.hbs"],
-  },
+<h2>Features</h2>
 
-  /**
-   * --- ASSET PIPELINE ---
-   * Standard Vite configuration for modern JS/TS and CSS.
-   */
-  build: {
-    // Path aliasing for cleaner imports
-    alias: { "@": "./src/components" },
-    // Frontend entry point
-    entry: "src/main.ts",
-    // Prevents bundling of WP core libraries
-    external: { jquery: "jQuery" },
-    // High-performance minification
-    minify: "oxc",
-    // Vite plugin support (e.g., React)
-    plugins: [react()],
-    // Disable sourcemaps for production
-    sourcemap: false,
-    // Browser compatibility range
-    target: "baseline-widely-available",
-    // Package the result for distribution
-    zip: true,
-  },
+<ul>
+	<li>🚀 Build WordPress plugins from modern JavaScript projects</li>
+	<li>⚡ Multi-entry support powered by Vite</li>
+	<li>🧵 Concurrent builds for multiple entry points</li>
+	<li>🔍 Glob-based source discovery and file matching</li>
+	<li>🧩 Modular task-based build pipeline</li>
+	<li>📦 Automatic plugin packaging and archive generation</li>
+	<li>📋 Clear, structured build output for easier debugging</li>
+</ul>
 
-  /**
-   * --- DATA BRIDGE ---
-   * This is the CRITICAL part. It takes the header object and
-   * makes it available to your Handlebars tags in PHP.
-   */
-  data() {
-    return {
-      ...this.header,
-    };
-  },
-});
-```
+<hr />
 
-## Execution
+<h2>What it does</h2>
 
-```bash
-  npx wp-builder build
-```
+<p>
+WP-Builder takes your JavaScript project, processes multiple entry points, bundles assets using Vite,
+and outputs a ready-to-use WordPress plugin package.
+</p>
+
+<hr />
+
+<h2>Example Workflow</h2>
+
+<pre>
+1. Define plugin source files
+2. Run wp-builder build
+3. Assets are bundled via Vite
+4. Plugin is generated and packaged
+</pre>
+
+<hr />
+
+<h2>Output</h2>
+
+<p>
+The final build produces a structured WordPress plugin directory ready for deployment or distribution.
+</p>
