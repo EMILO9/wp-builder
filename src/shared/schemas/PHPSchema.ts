@@ -9,9 +9,19 @@ export type PHPType = {
    */
   entry: string;
   /**
-   * A directory or glob pattern for additional PHP files to be included.
-   * Files in this path are typically auto-loaded or scanned for registration.
-   * @example ["php/includes"]
+   * Defines additional PHP filesystem sources to be included in the build.
+   *
+   * Each source can either point to a directory or to a file-matching rule.
+   *
+   * - Directory entries are created as-is in the final plugin output.
+   * - File-matching entries are used to locate PHP files that will be processed,
+   *   transformed using templates, and written into the build output.
+   *
+   * This allows you to mix static plugin structure with dynamic file processing
+   * during the build step.
+   *
+   * @example
+   * ["php/includes", "languages"]
    */
   sources: string[];
   /**

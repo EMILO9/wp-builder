@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   php: {
     entry: "php/plugin.php",
-    sources: ["php/includes/**/*.php", "php/languages/"],
+    sources: ["php/includes/**/*.php", "languages"],
   },
   header: { pluginName: "My Plugin!" },
   data() {
@@ -13,10 +13,11 @@ export default defineConfig({
     };
   },
   build: {
+    entry: { main: "src/index.ts", frontend: "frontend/main.ts" },
     external: { jquery: "jQuery" },
     minify: "oxc",
     target: "baseline-widely-available",
     plugins: [react()],
-    zip: false,
+    zip: true,
   },
 });

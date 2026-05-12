@@ -2,12 +2,26 @@ import { z } from "zod";
 
 export type BuildType = {
   /**
-   * The entry point for your plugin's JavaScript/TypeScript.
-   * Vite will use this as the root for its dependency graph.
-   * @default "src/index.ts"
-   * @example "src/main.ts"
+   * Defines the JavaScript/TypeScript entry points for your plugin.
+   *
+   * Each key represents a named bundle (e.g. "frontend", "admin"),
+   * and each value is the path to the corresponding entry file.
+   *
+   * Vite will build each entry independently using IIFE format,
+   * producing separate output files for WordPress enqueueing.
+   *
+   * @example
+   * {
+   *   frontend: "src/frontend.ts",
+   *   admin: "src/admin.ts"
+   * }
+   *
+   * @default
+   * {
+   *   main: "src/index.ts"
+   * }
    */
-  entry: string;
+  entry: Record<string, string>;
   /**
    * Defines aliases for custom import paths to simplify module resolution.
    * Useful for avoiding deep relative paths (e.g., `../../components`).
@@ -84,7 +98,9 @@ export type BuildType = {
 };
 
 export const BuildSchema: z.ZodType<BuildType, Partial<BuildType>> = z.object({
-  entry: z.string().trim().nonempty().default("src/index.ts"),
+  entry: z
+    .record(z.string(), z.string().trim().nonempty())
+    .default({ main: "src/index.ts" }),
   alias: z.record(z.string(), z.string()).default({}),
   external: z.record(z.string(), z.string()).default({}),
   minify: z

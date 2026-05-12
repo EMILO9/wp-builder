@@ -10,11 +10,12 @@ import fs from "fs-extra";
 import path from "node:path";
 import * as changeCase from "change-case";
 import { consola } from "consola";
-import ora from "ora";
 import { fromError, isZodErrorLike } from "zod-validation-error";
 import fg from "fast-glob";
 import globParent from "glob-parent";
 import AdmZip from "adm-zip";
+import ora from "ora";
+// import { Listr } from "listr2";
 
 const moduleName = parsePackageJsonName(pkg.name).fullName;
 const explorer = cosmiconfig(moduleName, {
@@ -72,61 +73,65 @@ program
       if (php.sources.length) {
         spinner.text = "Processing PHP sources...";
         for (const pattern of php.sources) {
+          const isGlob = fg.isDynamicPattern(pattern);
+          if (!isGlob) {
+            const targetPath = path.join(stagingPath, pattern);
+            await fs.ensureDir(targetPath);
+            continue;
+          }
           const parentDir = globParent(pattern);
-          const targetFolderName = path.basename(parentDir);
-          const targetPath = path.join(stagingPath, targetFolderName);
+          const targetPath = path.join(stagingPath, path.basename(parentDir));
           await fs.ensureDir(targetPath);
           const files = await fg(pattern, { onlyFiles: true });
           for (const file of files) {
             const source = await fs.readFile(file, "utf-8");
             const rendered = hbs.compile(source, { noEscape: true })(context);
             const subPath = path.relative(parentDir, file);
-            const destination = path.join(targetPath, subPath);
-            await fs.outputFile(destination, rendered);
+            await fs.outputFile(path.join(targetPath, subPath), rendered);
           }
         }
       }
       // --- 5. ASSET BUNDLING (Vite) ---
       if (build) {
-        spinner.text = "Running Vite build...";
-        await ViteBuild({
-          logLevel: "silent",
-          resolve: {
-            alias: build.alias,
-          },
-          define: {
-            __DATA__: JSON.stringify(context),
-          },
-          plugins: build.plugins,
-          build: {
-            target: build.target,
-            outDir: stagingPath,
-            emptyOutDir: false,
-            minify: build.minify,
-            sourcemap: build.sourcemap,
-            lib: {
-              entry: path.resolve(process.cwd(), build.entry),
-              name: changeCase.pascalCase(header.pluginName),
-              formats: ["iife"],
-              fileName: (format) => `${slug}.js`,
+        for (const [name, entry] of Object.entries(build.entry)) {
+          spinner.text = `Running Vite build for ${name}...`;
+          await ViteBuild({
+            logLevel: "silent",
+            resolve: {
+              alias: build.alias,
             },
-            rolldownOptions: {
-              external: Object.keys(build.external),
-              output: {
-                assetFileNames: (assetInfo) => {
-                  const name = assetInfo.names?.[0] ?? "";
-
-                  if (name.endsWith(".css")) {
-                    return `${slug}.css`;
-                  }
-
-                  return `assets/[name][extname]`;
+            define: {
+              __DATA__: JSON.stringify(context),
+            },
+            plugins: build.plugins,
+            build: {
+              target: build.target,
+              outDir: path.join(stagingPath, name),
+              emptyOutDir: false,
+              minify: build.minify,
+              sourcemap: build.sourcemap,
+              lib: {
+                entry: path.resolve(process.cwd(), entry),
+                name: changeCase.pascalCase(`${header.pluginName}-${name}`),
+                formats: ["iife"],
+                fileName: () => `${slug}-${name}.js`,
+              },
+              rolldownOptions: {
+                external: Object.keys(build.external),
+                output: {
+                  assetFileNames: (assetInfo) => {
+                    const file = assetInfo.names?.[0] ?? "asset";
+                    const isCss = file.endsWith(".css");
+                    return isCss
+                      ? `${slug}-${name}.css`
+                      : `assets/[name][extname]`;
+                  },
+                  globals: build.external,
                 },
-                globals: build.external,
               },
             },
-          },
-        });
+          });
+        }
         // --- 6. PACKAGING (Zip) ---
         if (build.zip) {
           spinner.text = "Zipping plugin...";
