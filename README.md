@@ -6,7 +6,7 @@
 </h1>
 
 <p align="center">
-	⚡ Build WordPress plugins from modern JavaScript projects ⚡
+	⚡ Build modern, multi-entry WordPress plugins from JavaScript ⚡
 </p>
 
 <p align="center">
@@ -29,8 +29,8 @@
 <h2>Overview</h2>
 
 <p>
-	<strong>WP-Builder</strong> is a build tool that compiles modern JavaScript projects into production-ready WordPress plugins.
-	It handles multi-entry builds, asset bundling, and plugin packaging through a streamlined CLI workflow.
+	<strong>WP-Builder</strong> is a build system for creating WordPress plugins from modern JavaScript projects.
+	It supports multi-entry builds, PHP templating, asset bundling, and configurable plugin architecture through a single unified config.
 </p>
 
 <hr />
@@ -43,7 +43,7 @@ npm install @emilo/wp-builder
 
 <hr />
 
-<h2>CLI Usage</h2>
+<h2>CLI</h2>
 
 <pre>
 npx wp-builder build
@@ -54,39 +54,86 @@ npx wp-builder build
 <h2>Features</h2>
 
 <ul>
-	<li>🚀 Build WordPress plugins from modern JavaScript projects</li>
-	<li>⚡ Multi-entry support powered by Vite</li>
-	<li>🧵 Concurrent builds for multiple entry points</li>
-	<li>🔍 Glob-based source discovery and file matching</li>
-	<li>🧩 Modular task-based build pipeline</li>
-	<li>📦 Automatic plugin packaging and archive generation</li>
-	<li>📋 Clear, structured build output for easier debugging</li>
+	<li>🚀 Build WordPress plugins from modern JavaScript/TypeScript projects</li>
+	<li>⚡ Multi-entry builds powered by Vite</li>
+	<li>🧵 Concurrent build execution for multiple entry points</li>
+	<li>🔍 Glob-based PHP source discovery and inclusion</li>
+	<li>🧩 Handlebars support for PHP templating</li>
+	<li>🧠 Custom helpers and partials for template composition</li>
+	<li>📦 Automatic plugin packaging with optional ZIP output</li>
+	<li>📋 Structured, readable build output for debugging</li>
 </ul>
 
 <hr />
 
-<h2>What it does</h2>
+<h2>Configuration</h2>
 
 <p>
-WP-Builder takes your JavaScript project, processes multiple entry points, bundles assets using Vite,
-and outputs a ready-to-use WordPress plugin package.
+WP-Builder is configured using a single <code>defineConfig</code> function.
 </p>
 
-<hr />
-
-<h2>Example Workflow</h2>
-
 <pre>
-1. Define plugin source files
-2. Run wp-builder build
-3. Assets are bundled via Vite
-4. Plugin is generated and packaged
+import { defineConfig } from "@emilo/wp-builder";
+
+export default defineConfig({
+	header: { pluginName: "My Plugin!" },
+
+	php: {
+		entry: "plugin.php",
+		sources: ["languages", "includes/**/*.php"]
+	},
+
+	build: {
+		entry: {
+			index: "index.ts",
+			test: "test.ts"
+		},
+		zip: true
+	},
+
+	data() {
+		return {
+			...this.header,
+		};
+	}
+});
 </pre>
 
 <hr />
 
-<h2>Output</h2>
+<h2>How it works</h2>
+
+<ul>
+	<li><strong>header</strong> → Plugin metadata and configuration</li>
+	<li><strong>build</strong> → Vite-based multi-entry bundling</li>
+	<li><strong>php</strong> → PHP entry + glob-based source inclusion</li>
+	<li><strong>data()</strong> → Shared context available in Vite + PHP templates</li>
+</ul>
+
+<hr />
+
+<h2>Templating</h2>
 
 <p>
-The final build produces a structured WordPress plugin directory ready for deployment or distribution.
+WP-Builder supports <strong>Handlebars</strong> for PHP generation, including:
 </p>
+
+<ul>
+	<li>Custom helpers</li>
+	<li>Reusable partials</li>
+	<li>Shared build-time data context</li>
+</ul>
+
+<hr />
+
+<h2>Data Context</h2>
+
+<p>
+The <code>data()</code> function provides a shared context accessible in:
+</p>
+
+<ul>
+	<li>Vite <code>define</code> environment</li>
+	<li>PHP entry files</li>
+	<li>PHP source files</li>
+</ul>
