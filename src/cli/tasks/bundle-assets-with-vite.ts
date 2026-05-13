@@ -24,8 +24,7 @@ export function bundle_assets_with_vite(): ListrTask<TaskCTX> {
               },
               define: {
                 __DATA__: JSON.stringify(ctx.context),
-                "process.env": {},
-                process: { env: {} },
+                "process.env.NODE_ENV": JSON.stringify("production"),
               },
               plugins: build.plugins,
               build: {
