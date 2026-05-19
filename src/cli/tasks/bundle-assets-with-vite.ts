@@ -13,6 +13,10 @@ export function bundle_assets_with_vite(): ListrTask<TaskCTX> {
         task.skip("No build config");
         return;
       }
+      if (!Object.entries(build.entry).length) {
+        task.skip("No entries specified for bundling");
+        return;
+      }
       return task.newListr(
         Object.entries(build.entry).map(([name, entry]) => ({
           title: `Build ${name}`,

@@ -3,73 +3,56 @@ import { z } from "zod";
 export type BuildType = {
   /**
    * Defines the JavaScript/TypeScript entry points for your plugin.
+   * * Each key represents a named bundle (e.g., "frontend", "admin"),
+   * which maps to the script handle used in `wp_enqueue_script`.
+   * The value is the relative path to the source entry file.
    *
-   * Each key represents a named bundle (e.g. "frontend", "admin"),
-   * and each value is the path to the corresponding entry file.
-   *
-   * Vite will build each entry independently using IIFE format,
-   * producing separate output files for WordPress enqueueing.
-   *
+   * @default { main: "src/index.ts" }
    * @example
-   * {
-   *   frontend: "src/frontend.ts",
-   *   admin: "src/admin.ts"
-   * }
-   *
-   * @default
-   * {
-   *   main: "src/index.ts"
-   * }
+   * entry: { admin: "src/admin.ts", frontend: "src/public.ts" }
    */
   entry: Record<string, string>;
   /**
-   * Defines aliases for custom import paths to simplify module resolution.
-   * Useful for avoiding deep relative paths (e.g., `../../components`).
-   * @default {}
-   * @example { "@": "./src/components" }
+   * Configure module resolution aliases.
+   * * Useful to keep import statements clean and avoid "import hell"
+   * like `../../../../components`.
+   * * @default {}
+   * @example { "@components": "./src/components" }
    */
   alias: Record<string, string>;
   /**
-   * External dependencies that should be excluded from the bundle.
-   * For WordPress, you usually externalize 'jquery' or 'react' to use the
-   * versions provided by the WordPress core.
-   * @default {}
-   * @example { "jquery": "jQuery", "react": "React" }
+   * Map of external dependencies to their global variable names.
+   * * **WordPress Context:** Use this to prevent bundling core libraries
+   * (like `react` or `jquery`) to keep your plugin bundle size small
+   * and leverage browser-cached WordPress core assets.
+   * * @default {}
+   * @example { "react": "React", "react-dom": "ReactDOM" }
    */
   external: Record<string, string>;
   /**
-   * The minification strategy to use for your JavaScript bundles.
-   * - `oxc`: High-performance Rust-based minification (Fastest).
-   * - `esbuild`: Vite's default fast minifier.
-   * - `terser`: Traditional choice for maximum compression (Slowest).
-   * - `true`: Uses the default minifier (oxc).
-   * - `false`: Disables minification entirely for debugging.
-   * @default true
+   * Minification strategy for production builds.
+   * * - `oxc`: Modern, Rust-based, industry-leading speed. Recommended.
+   * - `esbuild`: Extremely fast, standard for Vite.
+   * - `terser`: Traditional choice for maximum code crunching; best for extreme compatibility needs.
+   * - `true`: Uses `oxc` by default.
+   * - `false`: Disables minification; essential for readable production debugging.
+   * * @default true
    */
   minify: boolean | "oxc" | "terser" | "esbuild";
   /**
-   * Whether to generate source maps for debugging.
-   * - `true`: Generates a standard `.map` file.
-   * - `false`: No source maps are generated.
-   * - `inline`: Appends the source map as a DataURI at the end of the file.
-   * - `hidden`: Generates the `.map` file but doesn't link it in the bundle.
-   * @default false
+   * Source map generation strategy.
+   * * Use `true` or `inline` to map back to your original source
+   * code in the browser's developer console when errors occur.
+   * * @default false
    */
   sourcemap: boolean | "inline" | "hidden";
   /**
-   * The JavaScript language version or browser compatibility target.
-   * This determines which modern syntax features are transpiled.
-   * * **Supported Targets & Key Features:**
-   * - `es2016`: `Array.prototype.includes`, Exponentiation operator (`**`).
-   * - `es2017`: `async/await`, `Object.values/entries`.
-   * - `es2018`: Rest/Spread properties, `Promise.prototype.finally`.
-   * - `es2019`: `Array.prototype.flat`, `Object.fromEntries`.
-   * - `es2020`: Optional Chaining (`?.`), Nullish Coalescing (`??`), `BigInt`.
-   * - `es2021`: `String.prototype.replaceAll`, Logical Assignment (`??=`).
-   * - `es2022`: Class Fields, Top-level `await`, `Array.prototype.at`.
-   * - `esnext`: Supports all proposed features currently in the pipeline.
-   * - `baseline-widely-available`: Features supported by all major browsers (Chrome, Edge, Firefox, Safari) for at least 2 years.
-   * * @default "baseline-widely-available"
+   * Browser compatibility target.
+   * * Controls how modern your output JavaScript remains.
+   * * - `baseline-widely-available`: The "Golden Mean." Targets browsers with >95% global support.
+   * - `esnext`: Minimal transpilation; results in the smallest bundle size.
+   * * @see https://caniuse.com/ (Check browser support for these features)
+   * @default "baseline-widely-available"
    */
   target:
     | "es2016"
@@ -82,17 +65,18 @@ export type BuildType = {
     | "esnext"
     | "baseline-widely-available";
   /**
-   * Array of Vite plugins to extend the build process.
-   * Supports official Vite plugins, community Rollup plugins, and local scripts.
-   * @default []
+   * Array of Vite or Rollup-compatible plugins to extend build behavior.
+   * * Use this to add support for features like SVG handling, image optimization,
+   * or custom pre-processing.
+   * * @default []
    * @see https://vitejs.dev/guide/using-plugins.html
    */
   plugins: any[];
   /**
-   * Whether to bundle the final build into a distribution-ready ZIP file.
-   * The ZIP will be named after the plugin slug and placed in the `.plugin` directory.
-   * @default false
-   * @example true
+   * Enable ZIP packaging for distribution.
+   * * If true, the build process will automatically bundle the compiled
+   * output into a WordPress-compatible ZIP file in the `.plugin` folder.
+   * * @default false
    */
   zip: boolean;
 };

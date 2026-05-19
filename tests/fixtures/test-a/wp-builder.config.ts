@@ -1,23 +1,42 @@
 import { defineConfig } from "wp-builder";
-import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  php: {
-    entry: "php/plugin.php",
-    sources: ["php/includes/**/*.php", "languages"],
+  header: {
+    pluginName: "My Awesome Plugin!",
+    author: ["EMILO9"],
+    authorURI: "https://example.com",
+    description: "This plugin is awesome",
+    domainPath: "/languages",
+    license: "GPLv2 or later",
+    licenseURI: "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+    network: undefined,
+    pluginURI: "https://example.com",
+    requiresAtLeast: "6.0",
+    requiresPHP: "7.4",
+    requiresPlugins: [],
+    textDomain: "my-awesome-plugin",
+    updateURI: "https://example.com",
+    version: "1.0.0",
   },
-  header: { pluginName: "My Plugin!" },
-  data() {
-    return {
-      name: this.header.pluginName,
-    };
+  php: {
+    entry: "src/plugin.hbs",
+    partials: ["src/partials/**/*.{php,hbs}"],
+    includes: ["src/includes/**/*.{php,hbs}"],
+    helpers: {},
   },
   build: {
-    entry: { main: "src/index.ts", frontend: "frontend/main.ts" },
+    entry: { admin: "src/admin/main.ts" },
+    alias: { "@": "./src/admin" },
     external: { jquery: "jQuery" },
     minify: "oxc",
+    plugins: [],
+    sourcemap: true,
     target: "baseline-widely-available",
-    plugins: [react()],
     zip: true,
+  },
+  data() {
+    return {
+      ...this.header,
+    };
   },
 });

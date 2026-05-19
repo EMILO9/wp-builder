@@ -2,42 +2,34 @@ import { z } from "zod";
 
 export type PHPType = {
   /**
-   * The primary PHP entry point for the plugin.
-   * This is typically the file containing the Plugin Header and main initialization logic.
+   * The main plugin entry point (e.g., the file with the WordPress Plugin Header).
    * @default "php/plugin.php"
-   * @example "index.php"
    */
   entry: string;
   /**
-   * Defines additional PHP filesystem sources to be included in the build.
-   *
-   * Each source can either point to a directory or to a file-matching rule.
-   *
-   * - Directory entries are created as-is in the final plugin output.
-   * - File-matching entries are used to locate PHP files that will be processed,
-   *   transformed using templates, and written into the build output.
-   *
-   * This allows you to mix static plugin structure with dynamic file processing
-   * during the build step.
-   *
-   * @example
-   * ["php/includes", "languages"]
+   * List of glob patterns for PHP or Handlebars template files to be processed.
+   * * Files matched here will be compiled, transformed, and output into
+   * your staging directory.
    */
-  sources: string[];
+  includes: string[];
   /**
-   * Custom Handlebars helpers.
+   * Custom Handlebars helpers for logic inside your templates.
+   * * Use these to perform data formatting or conditional logic
+   * during the build process.
+   * @example { upper: (str) => str.toUpperCase() }
    */
   helpers: Record<string, (...args: any[]) => any>;
-  /*
-   * Glob patterns for Handlebars partials.
-   * Each string should be a glob pattern pointing to `.hbs` or `.php` files.
+  /**
+   * Glob patterns for global Handlebars partials.
+   * * Partials defined here are registered globally and can be called
+   * in any template using `{{> partialName }}`.
    */
   partials: string[];
 };
 
 export const PHPSchema: z.ZodType<PHPType, Partial<PHPType>> = z.object({
   entry: z.string().trim().nonempty().default("php/plugin.php"),
-  sources: z.array(z.string().trim().nonempty()).default([]),
+  includes: z.array(z.string().trim().nonempty()).default([]),
   helpers: z.record(z.string(), z.function()).default({}),
   partials: z.array(z.string().trim().nonempty()).default([]),
 });

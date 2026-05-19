@@ -1,5 +1,10 @@
 import type { ConfigInput } from "@shared/schemas/ConfigSchema";
 
+/**
+ * Plugin configuration interface.
+ * * Use `defineConfig` to ensure type safety and full IDE autocompletion
+ * while configuring your WordPress plugin.
+ */
 export interface UserConfig {
   /**
    * Configure how PHP files are discovered and loaded.

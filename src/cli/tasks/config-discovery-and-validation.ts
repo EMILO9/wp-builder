@@ -5,28 +5,28 @@ import { ConfigSchema } from "@shared/schemas/ConfigSchema";
 import type { TaskCTX } from "@shared/schemas/TaskCTX";
 
 export function discover_and_validate_config(
-	moduleName: string,
+  moduleName: string,
 ): ListrTask<TaskCTX> {
-	return {
-		title: "Config Discovery & Validation",
-		task: async (ctx) => {
-			const explorer = cosmiconfig(moduleName, {
-				loaders: {
-					".ts": TypeScriptLoader(),
-				},
-			});
-			const result = await explorer.search();
-			if (!result) {
-				throw new Error(
-					"Configuration not found. Please create a config file.",
-				);
-			}
-			if (result.isEmpty) {
-				throw new Error(
-					"Configuration file is empty. Please provide valid config.",
-				);
-			}
-			ctx.config = ConfigSchema.parse(result.config);
-		},
-	};
+  return {
+    title: "Config Discovery & Validation",
+    task: async (ctx) => {
+      const explorer = cosmiconfig(moduleName, {
+        loaders: {
+          ".ts": TypeScriptLoader(),
+        },
+      });
+      const result = await explorer.search(process.cwd());
+      if (!result) {
+        throw new Error(
+          `Configuration not found for '${moduleName}'. Please create a valid config file.`,
+        );
+      }
+      if (result.isEmpty) {
+        throw new Error(
+          `Configuration file found at (${result.filepath}) is empty.`,
+        );
+      }
+      ctx.config = ConfigSchema.parse(result.config);
+    },
+  };
 }
