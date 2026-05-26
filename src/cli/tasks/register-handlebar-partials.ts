@@ -4,12 +4,14 @@ import path from "path";
 import fg from "fast-glob";
 import fs from "fs-extra";
 import type { TaskCTX } from "@shared/schemas/TaskCTX";
+import header from "@cli/header.hbs";
 
 export function register_handlebar_partials(): ListrTask<TaskCTX> {
   return {
     title: "Register handlebar partials",
     task: async (ctx, task) => {
       const { php } = ctx.config;
+      Handlebars.registerPartial("header", header);
       const globResults = php.partials.map((p) => fg(p, { onlyFiles: true }));
       const partialFiles = (await Promise.all(globResults)).flat();
       if (!partialFiles.length) {

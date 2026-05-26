@@ -2,6 +2,7 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig([
   {
+    loader: { ".hbs": "text" },
     entry: { "cli-m": "src/cli/main.ts" },
     format: ["esm"],
     banner: { js: "#!/usr/bin/env node" },

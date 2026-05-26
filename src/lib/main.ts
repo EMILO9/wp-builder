@@ -1,3 +1,4 @@
+import { helpers } from "@shared/helpers";
 import type { ConfigInput } from "@shared/schemas/ConfigSchema";
 
 /**
@@ -55,3 +56,5 @@ export interface UserConfig {
 export function defineConfig(config: UserConfig) {
   return config;
 }
+
+export { helpers };

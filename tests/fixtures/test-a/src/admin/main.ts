@@ -1,28 +1,38 @@
 import "@/style.css";
 import $ from "jquery";
-import myImage from "@/assets/122.webp?no-inline";
+
 $(() => {
-	const $root = $("#root");
-	if (!$root.length) {
-		console.warn("Test-A: #root element not found.");
-		return;
-	}
+  const $root = $(`#${__DATA__.appID}`);
 
-	$root.html(`
-    <div class="test-a-container">
-      <img src="${myImage}" alt="Test Asset" style="max-width: 100%; height: auto;" />
+  if (!$root.length) {
+    console.warn("Admin root element not found.");
+    return;
+  }
 
-      <h2>Build Test: "test-a"</h2>
-      <p>Status: <span class="test-a-status">Build Successful!</span></p>
-      <hr />
-      <button id="test-a-trigger" class="button button-primary">
-        Click to Test jQuery
-      </button>
+  const toolName = "WP Builder";
+
+  $root.html(`
+    <div class="admin-wrap">
+      <h1>${toolName}</h1>
+
+      <div class="admin-subtitle">
+        A modern WordPress build tool for plugins and themes.
+        Handles PHP templates, assets, and build pipelines with a unified system.
+      </div>
+
+      <div class="admin-links">
+        <a href="https://github.com/EMILO9/wp-builder" target="_blank" rel="noreferrer">
+          GitHub Repository
+        </a>
+
+        <a href="https://www.npmjs.com/package/@emilo/wp-builder" target="_blank" rel="noreferrer">
+          NPM Package
+        </a>
+      </div>
+
+      <div class="admin-footer">
+        Built for modern WordPress development workflows.
+      </div>
     </div>
   `);
-
-	$("#test-a-trigger").on("click", (e) => {
-		$(e.currentTarget).text("Working! ✅");
-		console.log("Test-A: jQuery event listener fired successfully.");
-	});
 });

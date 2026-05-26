@@ -1,1 +1,46 @@
-{{>c}}
+<?php
+{{> header}}
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+add_action('admin_menu', function () {
+    add_menu_page(
+        '{{pluginName}}',
+        '{{pluginName}}',
+        'manage_options',
+        '{{kebabCase pluginName}}',
+        'wp_builder_render_admin_page',
+        'dashicons-admin-generic'
+    );
+});
+
+function wp_builder_render_admin_page() {
+    echo '<div id="{{appID}}"></div>';
+}
+
+add_action('admin_enqueue_scripts', function ($hook) {
+
+    if ($hook !== 'toplevel_page_{{kebabCase pluginName}}') {
+        return;
+    }
+
+    $slug = '{{kebabCase pluginName}}';
+    $base = plugin_dir_url(__FILE__) . 'admin/';
+
+    wp_enqueue_script(
+        $slug . '-admin',
+        $base . $slug . '-admin.js',
+        [],
+        '{{version}}',
+        true
+    );
+
+    wp_enqueue_style(
+        $slug . '-admin',
+        $base . $slug . '-admin.css',
+        [],
+        '{{version}}'
+    );
+});
