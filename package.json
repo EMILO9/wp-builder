@@ -5,6 +5,10 @@
 	"main": "./dist/lib/lib-m.cjs",
 	"module": "./dist/lib/lib-m.mjs",
 	"types": "./dist/lib/lib-m.d.cts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/EMILO9/wp-builder.git"
+	},
 	"scripts": {
 		"build": "tsdown",
 		"attw": "attw --pack .",
