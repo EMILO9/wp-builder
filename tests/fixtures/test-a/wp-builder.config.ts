@@ -36,6 +36,7 @@ export default defineConfig({
   },
   data() {
     return {
+      ...this.paths,
       ...this.header,
       appID: helpers.kebabCase(`${this.header.pluginName}-app`),
     };
