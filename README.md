@@ -6,28 +6,80 @@
 [![npm downloads](https://img.shields.io/npm/dm/@emilo/wp-builder?color=green&label=downloads)](https://www.npmjs.com/package/@emilo/wp-builder)
 [![license](https://img.shields.io/npm/l/@emilo/wp-builder?color=orange&label=license)](LICENSE)
 
-## Overview
+## What is wp-builder?
 
-**wp-builder** is a CLI tool that streamlines WordPress plugin development with a modern build pipeline. It combines configuration discovery, Handlebars templating, asset bundling with Vite, and automated plugin packaging into a single, cohesive workflow.
+**wp-builder** is a modern build tool that bridges the gap between contemporary JavaScript development and WordPress plugin development. It automates the entire plugin pipeline: from configuration discovery to Handlebars template compilation, asset bundling with Vite, and distribution packaging.
 
-Use cosmiconfig for flexible configuration discovery, write templates in Handlebars that compile to WordPress-compliant PHP, bundle your assets with Vite, and generate distribution-ready plugins.
+Think of it as **Next.js for WordPress plugins**—type-safe configuration, zero-config discovery, and a predictable build process.
 
-## Features
+## Why wp-builder?
 
-- 🔧 **Zero-Config Discovery**: Automatically finds and loads your plugin configuration using [cosmiconfig](https://github.com/cosmiconfig/cosmiconfig)
-- 📝 **Handlebars Templating**: Write `.hbs` templates that compile to PHP with global helpers and partials
-- ⚡ **Vite Bundling**: Multi-entry asset bundling with TypeScript, React, and modern minification
-- 📦 **Plugin Packaging**: Automated ZIP creation for plugin distribution
-- 🎯 **Type-Safe Config**: Full TypeScript support with schema validation via Zod
-- 🔄 **Task-Based Pipeline**: Clear, observable build steps with progress reporting
+### The Problem
+- ❌ Manual script enqueuing is error-prone
+- ❌ Asset management is tedious
+- ❌ No built-in templating or asset optimization
+- ❌ Testing and distribution are manual processes
+
+### The Solution
+- ✅ **Zero-Config Discovery** — Automatically finds your config using cosmiconfig
+- ✅ **Type-Safe Configuration** — Full TypeScript support with Zod schema validation
+- ✅ **Modern Templating** — Handlebars with custom helpers, partials, and global data
+- ✅ **Smart Asset Bundling** — Vite-powered multi-entry bundling with automatic minification
+- ✅ **Global Data Access** — Expose data to both templates and JS via a unified context
+- ✅ **Distribution Ready** — Automated ZIP packaging for plugin deployment
+- ✅ **Observable Pipeline** — Step-by-step progress reporting with task-based execution
+
+## How It Works
+
+The build pipeline is **deterministic and transparent**:
+
+```
+1. Config Discovery & Validation → Loads config, validates schema
+2. Prepare Runtime Context ──────→ Sets up build environment
+3. Delete Plugin Directory ──────→ Cleans output directory
+4. Register Helpers ─────────────→ Loads custom Handlebars helpers
+5. Register Partials ────────────→ Registers global templates
+6. Render PHP Entry ─────────────→ Compiles main plugin template
+7. Render PHP Includes ──────────→ Compiles all include templates
+8. Bundle Assets ────────────────→ Runs Vite for JS/CSS/etc
+9. Package Plugin ───────────────→ Creates ZIP archive (if enabled)
+```
+
+### Global Data Context
+
+Templates and JavaScript have access to a unified data context with:
+- **`header`** — Plugin metadata (name, version, author, etc.)
+- **`paths`** — Compiled entry paths (JS and CSS files)
+
+```typescript
+data() {
+  return {
+    VERSION: this.header.version,
+    ADMIN_JS: this.paths.admin.js,        // "admin/my-plugin-admin.js"
+    FRONTEND_CSS: this.paths.frontend.css, // "frontend/my-plugin-frontend.css"
+  };
+}
+```
 
 ## Installation
+
+### Via npm (Recommended)
 
 ```bash
 npm install -D @emilo/wp-builder
 ```
 
-Or use it directly via npx:
+Add to `package.json`:
+
+```json
+{
+  "scripts": {
+    "build": "wp-builder build"
+  }
+}
+```
+
+### Via npx
 
 ```bash
 npx @emilo/wp-builder build
@@ -35,7 +87,7 @@ npx @emilo/wp-builder build
 
 ## Quick Start
 
-### 1. Create a Configuration File
+### Step 1: Create Configuration
 
 Create `wp-builder.config.ts` in your project root:
 
@@ -43,27 +95,18 @@ Create `wp-builder.config.ts` in your project root:
 import { defineConfig } from "@emilo/wp-builder";
 
 export default defineConfig({
-  // Required: Plugin metadata
   header: {
     pluginName: "My Awesome Plugin",
-    pluginURI: "https://example.com",
-    description: "A cool WordPress plugin",
     version: "1.0.0",
-    author: "You",
+    description: "A lightweight WordPress plugin",
+    author: "Your Name",
     license: "MIT",
   },
 
-  // Optional: PHP template configuration
   php: {
-    entry: "src/plugin.hbs",           // Main entry point
-    includes: "src/includes/**/*.hbs",  // Files to process
-    partials: "src/partials/**/*.hbs",  // Global partials
-    helpers: {
-      uppercase: (str: string) => str.toUpperCase(),
-    },
+    entry: "src/plugin.hbs",
   },
 
-  // Optional: Asset bundling
   build: {
     entry: {
       admin: "src/admin.ts",
@@ -71,135 +114,144 @@ export default defineConfig({
     },
   },
 
-  // Optional: Global data available in templates
   data() {
     return {
-      API_URL: "https://api.example.com",
       VERSION: this.header.version,
+      ADMIN_JS: this.paths.admin.js,
     };
   },
 });
 ```
 
-### 2. Organize Your Project
+### Step 2: Organize Your Project
 
 ```
 your-plugin/
 ├── src/
-│   ├── plugin.hbs          # Main plugin file (rendered to PHP)
+│   ├── plugin.hbs              # Main plugin file
+│   ├── admin.ts                # Admin script
+│   ├── frontend.ts             # Frontend script
 │   ├── includes/
-│   │   └── admin.hbs       # Include files (rendered to PHP)
-│   ├── partials/
-│   │   └── header.hbs      # Reusable partials
-│   ├── admin.ts            # Admin script
-│   └── frontend.ts         # Frontend script
+│   │   ├── admin-page.hbs
+│   │   └── hooks.hbs
+│   └── partials/
+│       └── header.hbs
 ├── wp-builder.config.ts
 └── package.json
 ```
 
-### 3. Run the Build
+### Step 3: Build
 
 ```bash
 npm run build
 ```
 
-The build process will:
-1. ✅ Discover and validate your configuration
-2. 📋 Prepare the runtime context
-3. 🗑️ Clean the output directory
-4. 🔧 Register Handlebars helpers and partials
-5. 📝 Render the PHP entry template
-6. 📂 Process all PHP/Handlebars includes
-7. ⚡ Bundle assets with Vite
-8. 📦 Create a distribution-ready ZIP (if enabled)
-
-## Build Pipeline
-
-The CLI follows a deterministic, step-by-step pipeline:
-
-| Step | Task | Purpose |
-|------|------|---------|
-| 1 | Config Discovery & Validation | Loads config using cosmiconfig |
-| 2 | Prepare Runtime Context | Sets up build environment |
-| 3 | Delete Plugin Directory | Cleans output directory |
-| 4 | Register Helpers | Registers custom Handlebars helpers |
-| 5 | Register Partials | Loads global partial templates |
-| 6 | Render PHP Entry | Compiles main plugin template |
-| 7 | Render PHP Includes | Compiles all include templates |
-| 8 | Bundle Assets | Runs Vite for JS/CSS/etc |
-| 9 | Package Plugin | Creates ZIP archive (optional) |
+Output is created in `.plugin/my-awesome-plugin/` ready for deployment.
 
 ## Configuration Schema
 
 ### `header` (Required)
 
-Plugin metadata. At minimum, provide `pluginName`:
+Plugin metadata for WordPress plugin header:
 
 ```typescript
 header: {
-  pluginName: "My Plugin",           // Required
-  pluginURI?: "https://...",
-  description?: "...",
-  version?: "1.0.0",
-  author?: "...",
-  authorURI?: "https://...",
-  license?: "MIT",
-  licenseURI?: "https://...",
-  textDomain?: "my-plugin",
-  domainPath?: "/languages",
-  requiresWP?: "6.0",
-  requiresPHP?: "8.0",
-  testedUpTo?: "6.4",
+  pluginName: "My Plugin",              // Required: Display name
+  pluginURI?: "https://example.com",    // Plugin homepage
+  description?: "Short description",    // Max 140 characters
+  version?: "1.0.0",                    // Semantic version (default: 1.0.0)
+  author?: ["Your Name"],               // Array of author names
+  authorURI?: "https://example.com",    // Author website
+  license?: "MIT",                      // License type
+  licenseURI?: "https://mit.org",       // License URL
+  textDomain?: "my-plugin",             // Translation domain
+  domainPath?: "/languages",            // Translation files path
+  requiresAtLeast?: "6.0",              // Min WordPress version
+  requiresPHP?: "8.0",                  // Min PHP version
+  network?: true,                       // Multisite only
+  updateURI?: "https://...",            // Custom update server
+  requiresPlugins?: ["woocommerce"],    // Dependencies
 }
 ```
 
 ### `php` (Optional)
 
-Configure PHP/Handlebars file processing:
+PHP/Handlebars template configuration:
 
 ```typescript
 php: {
-  entry: "src/plugin.hbs",           // Main entry point
-  includes: ["src/includes/**/*.{php,hbs}"],
-  partials: ["src/partials/**/*.{php,hbs}"],
-  helpers: {
-    customHelper: (value: string) => value.toUpperCase(),
+  entry: "src/plugin.hbs",                    // Main entry file
+  includes: ["src/includes/**/*.{php,hbs}"],  // Files to process
+  partials: ["src/partials/**/*.{php,hbs}"],  // Global partials
+  helpers: {                                   // Custom helpers
+    uppercase: (str) => str.toUpperCase(),
+    formatDate: (date) => new Date(date).toLocaleDateString(),
   },
 }
 ```
 
 ### `build` (Optional)
 
-Configure asset bundling:
+Asset bundling configuration (uses Vite):
 
 ```typescript
 build: {
-  entry: {
+  entry: {                        // Multi-entry support
     admin: "src/admin.ts",
     frontend: "src/frontend.ts",
   },
-  zip: true,  // Create distribution ZIP
+  alias: {                        // Module resolution aliases
+    "@components": "./src/components",
+    "@utils": "./src/utils",
+  },
+  external: {                     // Prevent bundling
+    react: "React",
+    "react-dom": "ReactDOM",
+    jquery: "jQuery",
+  },
+  target: "es2020",               // Browser compatibility
+  minify: true,                   // Enable minification
+  sourcemap: false,               // Source maps in production
+  plugins: [],                    // Vite/Rollup plugins
+  zip: false,                     // Create distribution ZIP
 }
 ```
 
 ### `data()` (Optional)
 
-Define global variables available in templates:
+Global data available in templates and JS:
 
 ```typescript
 data() {
   return {
     VERSION: this.header.version,
     API_URL: "https://api.example.com",
+    ADMIN_JS: this.paths.admin.js,
+    FRONTEND_CSS: this.paths.frontend.css,
   };
 }
 ```
 
-These values are injected as global constants in the build and exposed to templates.
+**Available context:**
+- `this.header` — Plugin metadata
+- `this.paths` — Compiled asset paths per entry
 
 ## Usage Examples
 
-### Basic PHP Plugin with Handlebars
+### Example 1: Basic PHP Plugin
+
+**wp-builder.config.ts:**
+```typescript
+export default defineConfig({
+  header: {
+    pluginName: "Hello World",
+    version: "1.0.0",
+  },
+  php: {
+    entry: "src/plugin.hbs",
+  },
+});
+```
 
 **src/plugin.hbs:**
 ```handlebars
@@ -209,67 +261,175 @@ These values are injected as global constants in the build and exposed to templa
  * Version: {{version}}
  */
 
-echo "Hello from {{pluginName}} v{{version}}";
-?>
-```
-
-**wp-builder.config.ts:**
-```typescript
-export default defineConfig({
-  header: { pluginName: "Hello Plugin", version: "1.0.0" },
-  php: { entry: "src/plugin.hbs" },
+add_action('wp_footer', function() {
+  echo 'Hello from {{pluginName}}!';
 });
 ```
 
-### Multi-Entry Asset Bundling
+### Example 2: Full Stack Plugin with Assets
 
 **wp-builder.config.ts:**
 ```typescript
 export default defineConfig({
-  header: { pluginName: "Full Stack Plugin" },
+  header: {
+    pluginName: "Dashboard Widget",
+    version: "2.0.0",
+  },
   build: {
     entry: {
       admin: "src/admin.ts",
-      frontend: "src/frontend.ts",
+    },
+    external: {
+      react: "React",
+      "react-dom": "ReactDOM",
     },
   },
-});
-```
-
-### Global Data in Templates
-
-**src/plugin.hbs:**
-```handlebars
-<?php
-define('PLUGIN_VERSION', '{{VERSION}}');
-define('API_URL', '{{API_URL}}');
-?>
-```
-
-**wp-builder.config.ts:**
-```typescript
-export default defineConfig({
-  header: { pluginName: "My Plugin", version: "1.0.0" },
   data() {
     return {
-      VERSION: this.header.version,
-      API_URL: "https://api.example.com",
+      ADMIN_JS: this.paths.admin.js,
     };
   },
 });
 ```
 
-## API Reference
+### Example 3: Data-Driven Templates
 
-### `defineConfig(config: UserConfig)`
+**wp-builder.config.ts:**
+```typescript
+export default defineConfig({
+  header: {
+    pluginName: "Settings Page",
+    version: "1.5.0",
+  },
+  php: {
+    entry: "src/plugin.hbs",
+  },
+  data() {
+    return {
+      MENU_SLUG: "settings-page",
+      SETTINGS_KEY: "my_plugin_settings",
+      API_ENDPOINT: "https://api.example.com",
+    };
+  },
+});
+```
 
-Type-safe configuration helper. Use this in your config file for IDE autocompletion and validation.
+**src/plugin.hbs:**
+```handlebars
+<?php
+/**
+ * Plugin Name: {{pluginName}}
+ */
+
+add_action('admin_menu', function() {
+  add_menu_page(
+    '{{pluginName}}',
+    'Settings',
+    'manage_options',
+    '{{MENU_SLUG}}',
+    'render_settings_page'
+  );
+});
+
+function render_settings_page() {
+  echo '<div id="app"></div>';
+  echo '<script>';
+  echo 'window.PLUGIN_CONFIG = { apiUrl: "{{API_ENDPOINT}}" };';
+  echo '</script>';
+}
+```
+
+## Advanced Features
+
+### Custom Handlebars Helpers
 
 ```typescript
-import { defineConfig } from "@emilo/wp-builder";
-
-export default defineConfig({ /* ... */ });
+php: {
+  helpers: {
+    ternary: (condition, trueVal, falseVal) => condition ? trueVal : falseVal,
+    multiply: (a, b) => a * b,
+    isProd: () => process.env.NODE_ENV === 'production',
+  },
+}
 ```
+
+Use in templates:
+```handlebars
+{{#if (isProd)}}
+  Production build
+{{else}}
+  Development build
+{{/if}}
+
+{{ternary isAdmin "Show Admin" "Show User"}}
+```
+
+### Global Partials
+
+Organize reusable template fragments:
+
+```
+src/partials/
+├── header.hbs
+├── footer.hbs
+└── admin/
+    ├── settings.hbs
+    └── form.hbs
+```
+
+Use in templates:
+```handlebars
+{{> header}}
+<main>{{content}}</main>
+{{> footer}}
+```
+
+### Multi-Entry Bundling
+
+```typescript
+build: {
+  entry: {
+    admin: "src/admin.ts",
+    frontend: "src/frontend.ts",
+    block: "src/block.ts",
+  },
+}
+```
+
+Access in data:
+```typescript
+data() {
+  return {
+    ADMIN_JS: this.paths.admin.js,
+    FRONTEND_JS: this.paths.frontend.js,
+    BLOCK_JS: this.paths.block.js,
+  };
+}
+```
+
+## Build Output
+
+After running `npm run build`, your plugin is created in `.plugin/`:
+
+```
+.plugin/
+└── my-awesome-plugin/
+    ├── plugin.php               # Main entry
+    ├── includes/                # Processed includes
+    │   ├── admin.php
+    │   └── hooks.php
+    ├── admin/                   # Admin assets
+    │   ├── my-plugin-admin.js
+    │   └── my-plugin-admin.css
+    └── frontend/                # Frontend assets
+        ├── my-plugin-frontend.js
+        └── my-plugin-frontend.css
+```
+
+Ready to:
+- ✅ Deploy directly to `/wp-content/plugins/`
+- ✅ Package as ZIP for distribution
+- ✅ Upload to WordPress.org plugin directory
 
 ## Supported File Types
 
@@ -286,16 +446,48 @@ export default defineConfig({ /* ... */ });
 ## Requirements
 
 - **Node.js**: 18+
-- **WordPress**: 5.0+ (depends on your plugin code)
+- **WordPress**: 5.0+
+- **PHP**: 7.4+ (recommended 8.0+)
 
 ## TypeScript Support
 
-Full type definitions are included. For best IDE support in client code, import from the client module:
+Full type definitions included. For IDE support in client code:
 
 ```typescript
 import type { /* types */ } from "@emilo/wp-builder/client";
 ```
 
+## Best Practices
+
+1. **Use TypeScript** — Full IDE autocompletion and type checking
+2. **Keep PHP templates minimal** — Use helpers for logic
+3. **Leverage global data** — Don't hardcode values
+4. **Modularize assets** — Use multiple entries for different contexts
+5. **Version consistently** — Use semantic versioning
+6. **Document helpers** — Add JSDoc comments to custom helpers
+
+## Troubleshooting
+
+### Config not found
+Ensure `wp-builder.config.ts` exists in your project root. wp-builder searches for:
+- `wp-builder.config.ts`
+- `wp-builder.config.js`
+- `.wp-builderrc`
+- `.wp-builderrc.ts`
+
+### Build fails with "No entries specified"
+Either add a `build.entry` config or remove the `build` section if you only need PHP.
+
+### Assets not appearing
+Check:
+1. Entry paths in config match actual files
+2. Assets are in the correct output directory
+3. Enqueue scripts with correct paths
+
 ## License
 
 MIT © [EMILO9](https://github.com/EMILO9)
+
+## Contributing
+
+Contributions welcome! Please open an issue or PR on [GitHub](https://github.com/EMILO9/wp-builder).
