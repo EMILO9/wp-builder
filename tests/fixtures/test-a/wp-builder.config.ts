@@ -33,6 +33,7 @@ export default defineConfig({
     sourcemap: false,
     target: "baseline-widely-available",
     zip: true,
+    copy: ["a/**"],
   },
   data() {
     return {

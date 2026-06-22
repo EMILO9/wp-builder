@@ -13,6 +13,7 @@ import { render_php_entry_template } from "@cli/tasks/render-php-entry-template"
 import { render_php_include_templates } from "@cli/tasks/render-php-source-templates";
 import { bundle_assets_with_vite } from "@cli/tasks/bundle-assets-with-vite";
 import { package_plugin_archive } from "@cli/tasks/package-plugin-archive";
+import { copy_assets } from "@cli/tasks/copy-assets";
 
 const moduleName = parsePackageJsonName(pkg.name).fullName;
 
@@ -36,6 +37,7 @@ program
           render_php_entry_template(),
           render_php_include_templates(),
           bundle_assets_with_vite(),
+          copy_assets(),
           package_plugin_archive(),
         ],
         {

@@ -79,6 +79,18 @@ export type BuildType = {
    * * @default false
    */
   zip: boolean;
+  /**
+   * Files or glob patterns to include in the plugin package.
+   * - Patterns are evaluated from the project root.
+   * - Matches are copied into the plugin staging folder preserving their path
+   *   relative to the repo root (e.g. `readme.txt` -> `.plugin/<slug>/readme.txt`).
+   * - The build's staging folder is ignored so your build output won't be recopied.
+   * - If you match files outside the project root they will be copied by filename
+   *   into the plugin root (this may overwrite other files with the same name).
+   * Examples: ["readme.txt", "LICENSE", "assets/screenshots/**"]
+   * @default []
+   */
+  copy: string[];
 };
 
 export const BuildSchema: z.ZodType<BuildType, Partial<BuildType>> = z.object({
@@ -113,4 +125,5 @@ export const BuildSchema: z.ZodType<BuildType, Partial<BuildType>> = z.object({
     .default("baseline-widely-available"),
   plugins: z.array(z.any()).default([]),
   zip: z.boolean().default(false),
+  copy: z.array(z.string().nonempty()).default([]),
 });
