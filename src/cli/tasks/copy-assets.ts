@@ -9,41 +9,32 @@ export function copy_assets(): ListrTask<TaskCTX> {
     title: "Copy assets",
     task: async (ctx, task) => {
       const { build } = ctx.config;
-      const patterns: string[] = build?.copy ?? [];
-      if (!patterns.length) {
-        task.skip("No copy patterns configured");
-        return;
-      }
-      const stagingPath =
-        ctx.stagingPath ?? ctx.buildRoot ?? path.join(process.cwd(), ".plugin");
-      const stagingRel = path
-        .relative(process.cwd(), stagingPath)
-        .replace(/\\/g, "/");
-      const stagingIgnore = stagingRel
-        ? `${stagingRel}/**`
-        : `${path.basename(stagingPath)}/**`;
-      const globPromises = patterns.map((p) =>
-        fg(p, {
-          onlyFiles: true,
-          dot: true,
-          absolute: true,
-          cwd: process.cwd(),
-          ignore: [stagingIgnore],
+      const { stagingPath } = ctx;
+      const patterns = build?.copy ?? [];
+      const copyOperations = await Promise.all(
+        patterns.map(async (pattern) => {
+          const files = await fg(pattern.from, { dot: true });
+          return files.map((file, index) => {
+            const baseName = path.basename(file, path.extname(file));
+            const ext = path.extname(file);
+            const fileName = pattern.rename
+              ? pattern.rename(index, baseName, ext)
+              : path.basename(file);
+            return {
+              src: file,
+              dest: path.join(stagingPath, pattern.to, fileName),
+            };
+          });
         }),
       );
-      const files = Array.from(
-        new Set((await Promise.all(globPromises)).flat()),
-      );
-      if (!files.length) {
-        task.skip("No files matched the configured patterns");
+      const flatOps = copyOperations.flat();
+      if (flatOps.length === 0) {
+        task.skip("No assets matched the provided patterns.");
         return;
       }
-      for (const abs of files) {
-        const rel = path.relative(process.cwd(), abs);
-        const safeRel = rel.startsWith("..") ? path.basename(abs) : rel;
-        const dest = path.join(stagingPath, safeRel); // <- use local stagingPath
-        await fs.ensureDir(path.dirname(dest));
-        await fs.copy(abs, dest, { overwrite: true });
+      for (const op of flatOps) {
+        await fs.ensureDir(path.dirname(op.dest));
+        await fs.copy(op.src, op.dest);
       }
     },
   };

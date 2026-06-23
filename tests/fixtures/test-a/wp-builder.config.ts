@@ -33,7 +33,12 @@ export default defineConfig({
     sourcemap: false,
     target: "baseline-widely-available",
     zip: true,
-    copy: ["a/**"],
+    copy: [
+      {
+        from: "node_modules/jquery/dist/**.js",
+        to: "copied",
+      },
+    ],
   },
   data() {
     return {
